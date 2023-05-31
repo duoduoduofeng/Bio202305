@@ -88,14 +88,14 @@ def parse_dagchainer_output(file_path, debug_rows_count = 0):
 
 
 if __name__ == "__main__":
+    species = 'chum_salmon'
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    input_file = os.path.join(current_dir, '..', 'data', 'rainbow_trout')
-    # input_file = '../data/rainbow_trout'
+    input_file = os.path.join(current_dir, '..', 'data', species)
     blocks_avg_sim = parse_dagchainer_output(input_file)
 
     # Print extracted chain information
     output_file = os.path.join(current_dir, '..', 'output', 
-                               'rainbow_trout.similarity')
+                               species + '.similarity')
     with open(output_file, 'w') as out:
         out.write(f"Genome Sequence\tGenome Sequence 2\t\
             Block Size\tAverage Percent Identity\n")
