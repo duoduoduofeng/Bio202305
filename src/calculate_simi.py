@@ -1,5 +1,6 @@
 import re
 import os
+import matplotlib.pyplot as plt
 
 def parse_dagchainer_output(file_path, debug_rows_count = 0):
     with open(file_path, 'r') as file:
@@ -86,19 +87,37 @@ def parse_dagchainer_output(file_path, debug_rows_count = 0):
     
     return blocks_avg_sim
 
+def draw_sim_plot(species, block_sim_data, plot_saving_file):
+    data = []
+    for block in block_sim_data:
+        data.append(float(format(block[3], ".2f")))
+
+    plt.hist(data, bins=20, edgecolor='black', alpha=0.7)
+    plt.xlabel('Values')
+    plt.ylabel('Frequency')
+    plt.title(f"Similarity Distribution Plot of {species}")
+    plt.grid(True)
+    plt.savefig(plot_saving_file)
+    # plt.show()
 
 if __name__ == "__main__":
-    species = 'chum_salmon'
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    input_file = os.path.join(current_dir, '..', 'data', species)
-    blocks_avg_sim = parse_dagchainer_output(input_file)
+    species_list = ['rainbow_trout', 'chum_salmon']
+    for species in species_list:
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        input_file = os.path.join(current_dir, '..', 'data', species)
+        blocks_avg_sim = parse_dagchainer_output(input_file)
 
-    # Print extracted chain information
-    output_file = os.path.join(current_dir, '..', 'output', 
-                               species + '.similarity')
-    with open(output_file, 'w') as out:
-        out.write(f"Genome Sequence\tGenome Sequence 2\t\
-            Block Size\tAverage Percent Identity\n")
-        for block in blocks_avg_sim:
-            out.write(f"{block[0]}\t{block[1]}\t\
-                {block[2]}\t{block[3]: .2f}\n")
+        # Draw distribution plot
+        plot_file = os.path.join(current_dir, '..', 'output', 
+                                species + '.similarity.jpeg')
+        draw_sim_plot(species, blocks_avg_sim, plot_file)
+
+        # Print extracted chain information
+        output_file = os.path.join(current_dir, '..', 'output', 
+                                species + '.similarity')
+        with open(output_file, 'w') as out:
+            out.write(f"Genome Sequence\tGenome Sequence 2\t\
+                Block Size\tAverage Percent Identity\n")
+            for block in blocks_avg_sim:
+                out.write(f"{block[0]}\t{block[1]}\t\
+                    {block[2]}\t{block[3]: .2f}\n")
