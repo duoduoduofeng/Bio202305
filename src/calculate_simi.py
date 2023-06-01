@@ -91,7 +91,8 @@ def draw_sim_plot(species, block_sim_data, plot_saving_file):
     data = []
     for block in block_sim_data:
         data.append(float(format(block[3], ".2f")))
-
+    
+    plt.clf()
     plt.hist(data, bins=20, edgecolor='black', alpha=0.7)
     plt.xlabel('Values')
     plt.ylabel('Frequency')
