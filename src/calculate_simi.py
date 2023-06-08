@@ -1,5 +1,6 @@
 import re
 import os
+import sys
 import matplotlib.pyplot as plt
 
 def parse_dagchainer_output(file_path, debug_rows_count = 0):
@@ -87,6 +88,14 @@ def parse_dagchainer_output(file_path, debug_rows_count = 0):
     
     return blocks_avg_sim
 
+def save_similarity(output_file, blocks_avg_sim):
+    with open(output_file, 'w') as out:
+        out.write(f"Genome Sequence\tGenome Sequence 2\t\
+                  Block Size\tAverage Percent Identity\n")
+        for block in blocks_avg_sim:
+            out.write(f"{block[0]}\t{block[1]}\t\
+                      {block[2]}\t{block[3]: .2f}\n")
+
 def draw_sim_plot(species, block_sim_data, plot_saving_file):
     data = []
     for block in block_sim_data:
@@ -101,24 +110,67 @@ def draw_sim_plot(species, block_sim_data, plot_saving_file):
     plt.savefig(plot_saving_file)
     # plt.show()
 
-if __name__ == "__main__":
-    species_list = ['rainbow_trout', 'chum_salmon']
+def parse_species_list(args):
+    species_list = []
+    
+    if len(args) < 2:
+        print("Please provide a file, "
+              "or several files with semicolon as separator, "
+              "or folder as an argument.")
+    else:
+        paths = sys.argv[1:]
+        print(f"Your input path: {paths}")
+        for path in paths:
+            if os.path.isfile(path):
+                species_list.append(path)
+            elif os.path.isdir(path):
+                for root, _, files in os.walk(path):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        species_list.append(file_path)
+            else:
+                filenames = path.split(";")
+                for filename in filenames:
+                    if os.path.isfile(filename):
+                        species_list.append(filename)
+                    else:
+                        print(f"Invalid file: {filename} "
+                              "inside the list you input.")
+                        
+    return species_list
+
+def main(args):
+    species_list = parse_species_list(args)
+    if species_list is None or len(species_list) <= 0:
+        print("No valid input.")
+        return
+
+    print(f"The program will deal with the following files: {species_list}")
+
+    # Check the output directory.
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    directory = "../output"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # species_list = ['rainbow_trout', 'chum_salmon']
     for species in species_list:
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        input_file = os.path.join(current_dir, '..', 'data', species)
+        input_file = os.path.join(current_dir, species)
         blocks_avg_sim = parse_dagchainer_output(input_file)
 
+        # Print extracted chain information
+        output_file = os.path.join(current_dir, directory, 
+                                   os.path.basename(species) 
+                                   + '.similarity')
+        save_similarity(output_file, blocks_avg_sim)
+
         # Draw distribution plot
-        plot_file = os.path.join(current_dir, '..', 'output', 
-                                species + '.similarity.jpeg')
+        plot_file = os.path.join(current_dir, directory, 
+                                 os.path.basename(species) 
+                                 + '.similarity.jpeg')
         draw_sim_plot(species, blocks_avg_sim, plot_file)
 
-        # Print extracted chain information
-        output_file = os.path.join(current_dir, '..', 'output', 
-                                species + '.similarity')
-        with open(output_file, 'w') as out:
-            out.write(f"Genome Sequence\tGenome Sequence 2\t\
-                Block Size\tAverage Percent Identity\n")
-            for block in blocks_avg_sim:
-                out.write(f"{block[0]}\t{block[1]}\t\
-                    {block[2]}\t{block[3]: .2f}\n")
+    print(f"Mission completed. Please check the results in {directory} folder.")
+
+if __name__ == "__main__":
+    main(sys.argv)
