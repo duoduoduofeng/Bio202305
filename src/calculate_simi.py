@@ -2,6 +2,7 @@ import re
 import os
 import sys
 import matplotlib.pyplot as plt
+import fit
 
 def parse_dagchainer_output(file_path, debug_rows_count = 0):
     with open(file_path, 'r') as file:
@@ -110,6 +111,12 @@ def draw_sim_plot(species, block_sim_data, plot_saving_file):
     plt.savefig(plot_saving_file)
     # plt.show()
 
+def simulate_similarity(block_sim_data):
+    data = []
+    for block in block_sim_data:
+        data.append(float(format(block[3], ".2f")))
+    fit.simulate_distribution(data)
+
 def parse_species_list(args):
     species_list = []
     
@@ -169,6 +176,9 @@ def main(args):
                                  os.path.basename(species) 
                                  + '.similarity.jpeg')
         draw_sim_plot(species, blocks_avg_sim, plot_file)
+
+        # Fit the distribution
+        simulate_similarity(blocks_avg_sim)
 
     print(f"Mission completed. Please check the results in {directory} folder.")
 
