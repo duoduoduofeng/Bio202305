@@ -3,6 +3,7 @@ import os
 import sys
 import matplotlib.pyplot as plt
 import fit
+import fit_gmm
 
 def parse_dagchainer_output(file_path, debug_rows_count = 0):
     with open(file_path, 'r') as file:
@@ -111,11 +112,17 @@ def draw_sim_plot(species, block_sim_data, plot_saving_file):
     plt.savefig(plot_saving_file)
     # plt.show()
 
-def simulate_similarity(block_sim_data):
+def fit_similarity(block_sim_data, fit_file, fit_paras_file):
     data = []
     for block in block_sim_data:
         data.append(float(format(block[3], ".2f")))
-    fit.simulate_distribution(data)
+    fit.simulate_distribution(data, fit_file, fit_paras_file)
+
+def fit_gmm_similarity(block_sim_data, fit_file, fit_gmm_paras_file):
+    data = []
+    for block in block_sim_data:
+        data.append(float(format(block[3], ".2f")))
+    fit_gmm.fit_gmm(data, fit_file, fit_gmm_paras_file)
 
 def parse_species_list(args):
     species_list = []
@@ -178,7 +185,22 @@ def main(args):
         draw_sim_plot(species, blocks_avg_sim, plot_file)
 
         # Fit the distribution
-        simulate_similarity(blocks_avg_sim)
+        fit_file = os.path.join(current_dir, directory, 
+                                 os.path.basename(species) 
+                                 + '.fit.jpeg')
+        fit_paras_file = os.path.join(current_dir, directory, 
+                                 os.path.basename(species) 
+                                 + '.fit.parameters')
+        fit_similarity(blocks_avg_sim, fit_file, fit_paras_file)
+
+        # Fit the distribution by GMM
+        fit_gmm_file = os.path.join(current_dir, directory, 
+                                 os.path.basename(species) 
+                                 + '.fit_gmm.jpeg')
+        fit_gmm_paras_file = os.path.join(current_dir, directory, 
+                                 os.path.basename(species) 
+                                 + '.fit_gmm.parameters')
+        fit_gmm_similarity(blocks_avg_sim, fit_gmm_file, fit_gmm_paras_file)
 
     print(f"Mission completed. Please check the results in {directory} folder.")
 
