@@ -19,7 +19,7 @@ def simulate_data():
                         np.random.normal(5, 1, 500)])
     return data
 
-def measure_by_mle(data, parameter_file_name):
+def measure_by_mle(data, parameter_file_name, plot_file_name):
     data = np.array(data).reshape(-1, 1)
 
     # 初始化最优结果
@@ -42,19 +42,10 @@ def measure_by_mle(data, parameter_file_name):
         fit_after_node = stats.norm.fit(data_after_node)
         
         # try MLE
-        # print("Likelihood", stats.norm.pdf(data_before_node, 
-        #                             loc=fit_before_node[0], 
-        #                             scale=fit_before_node[1]))
-        # mle = np.sum(stats.norm.pdf(data_before_node, 
-        #                             loc=fit_before_node[0], 
-        #                             scale=fit_before_node[1])) + \
-        #     np.sum(stats.norm.pdf(data_after_node, 
-        #                             loc=fit_after_node[0], 
-        #                             scale=fit_after_node[1]))
-        mle = calc_mle(data_before_node, fit_before_node[0], fit_before_node[1]) + \
-            calc_mle(data_after_node, fit_after_node[0], fit_after_node[1])
-
-        #print(f"{node}\t{fit_before_node}\t{fit_after_node}\t{mse}")
+        mle = calc_mle(data_before_node, fit_before_node[0], 
+                       fit_before_node[1]) + \
+                calc_mle(data_after_node, fit_after_node[0], 
+                         fit_after_node[1])
 
         # 更新最优结果
         if mle > best_mle_score:
@@ -63,13 +54,10 @@ def measure_by_mle(data, parameter_file_name):
             best_fit_after_node = fit_after_node
             best_node = node
 
-    # print("Best cutoff:", best_node)
-    # print("Best mse:", best_mle_score)
-    # print("Best Fit Before Node (Normal):", best_fit_before_node)
-    # print("Best Fit After Node (Normal):", best_fit_after_node)
-
-    #visual_optimal_cutoff(data, best_node, 
-    #                      best_fit_before_node, best_fit_after_node)
+    visual_optimal_cutoff(data, best_node, 
+                         best_fit_before_node, 
+                         best_fit_after_node, 
+                         plot_file_name)
 
     with open(parameter_file_name, 'w') as pf:
         # pf.write(str(optimal_cutoff))
@@ -99,13 +87,6 @@ def measure_by_mse(data):
         fit_before_node = stats.norm.fit(data_before_node)
         fit_after_node = stats.norm.fit(data_after_node)
 
-        # 计算评估指标，这里可以使用均方误差、拟合优度或其他适当的指标
-        # mse = np.mean((data_before_node - 
-        #                stats.norm.pdf(data_before_node, 
-        #                               *fit_before_node)) ** 2) + \
-        #       np.mean((data_after_node - 
-        #                stats.norm.pdf(data_after_node, 
-        #                               *fit_after_node)) ** 2)
         mse = calc_mse(data_before_node, fit_before_node) + \
             calc_mse(data_after_node, fit_after_node)
 
@@ -126,11 +107,14 @@ def measure_by_mse(data):
                           best_fit_before_node, best_fit_after_node)
 
 def visual_optimal_cutoff(data, best_node, 
-                          best_fit_before_node, best_fit_after_node):
+                          best_fit_before_node, 
+                          best_fit_after_node, 
+                          plot_file_name):
     # 可视化最优拟合结果
     data_before_best_node = data[data < best_node].reshape(-1, 1)
     data_after_best_node = data[data >= best_node].reshape(-1, 1)
 
+    plt.clf()
     plt.hist(data, bins=30, density=True, alpha=0.6, label="Data")
     x_before_best_node = np.linspace(np.min(data_before_best_node), 
                     np.max(data_before_best_node), 100)
@@ -144,7 +128,8 @@ def visual_optimal_cutoff(data, best_node,
             stats.norm.pdf(x_after_best_node, *best_fit_after_node), 
             label="After Node (Normal)")
     plt.legend()
-    plt.show()
+    # plt.show()
+    plt.savefig(plot_file_name)
 
 if __name__ == "__main__":
     data = simulate_data()

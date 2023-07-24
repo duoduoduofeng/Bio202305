@@ -4,6 +4,8 @@ import sys
 import matplotlib.pyplot as plt
 import fit
 import fit_gmm
+import find_gmm_cutoff
+import cutoff_binormal
 
 def parse_dagchainer_output(file_path, debug_rows_count = 0):
     with open(file_path, 'r') as file:
@@ -124,6 +126,22 @@ def fit_gmm_similarity(block_sim_data, fit_file, fit_gmm_paras_file):
         data.append(float(format(block[3], ".2f")))
     fit_gmm.fit_gmm(data, fit_file, fit_gmm_paras_file)
 
+def find_gmm_cutoffs(block_sim_data, gmm_cutoffs_file):
+    data = []
+    for block in block_sim_data:
+        data.append(float(format(block[3], ".2f")))
+    find_gmm_cutoff.find_gmm_cutoff(data, gmm_cutoffs_file)
+
+def find_binormal_cutoffs(block_sim_data, 
+                          binormal_cutoffs_parameters, 
+                          binormal_cutoffs_plot):
+    data = []
+    for block in block_sim_data:
+        data.append(float(format(block[3], ".2f")))
+    cutoff_binormal.measure_by_mle(data, 
+                                   binormal_cutoffs_parameters, 
+                                   binormal_cutoffs_plot)
+
 def parse_species_list(args):
     species_list = []
     
@@ -184,23 +202,40 @@ def main(args):
                                  + '.similarity.jpeg')
         draw_sim_plot(species, blocks_avg_sim, plot_file)
 
-        # Fit the distribution
-        fit_file = os.path.join(current_dir, directory, 
-                                 os.path.basename(species) 
-                                 + '.fit.jpeg')
-        fit_paras_file = os.path.join(current_dir, directory, 
-                                 os.path.basename(species) 
-                                 + '.fit.parameters')
-        fit_similarity(blocks_avg_sim, fit_file, fit_paras_file)
+        # Fit the distribution with 110 distributions in scipy lib.
+        # fit_file = os.path.join(current_dir, directory, 
+        #                          os.path.basename(species) + 
+        #                          '.fit.jpeg')
+        # fit_paras_file = os.path.join(current_dir, directory, 
+        #                          os.path.basename(species) + 
+        #                          '.fit.parameters')
+        # fit_similarity(blocks_avg_sim, fit_file, fit_paras_file)
 
         # Fit the distribution by GMM
         fit_gmm_file = os.path.join(current_dir, directory, 
-                                 os.path.basename(species) 
-                                 + '.fit_gmm.jpeg')
+                                 os.path.basename(species) + 
+                                 '.fit_gmm.jpeg')
         fit_gmm_paras_file = os.path.join(current_dir, directory, 
-                                 os.path.basename(species) 
-                                 + '.fit_gmm.parameters')
+                                 os.path.basename(species) + 
+                                 '.fit_gmm.parameters')
         fit_gmm_similarity(blocks_avg_sim, fit_gmm_file, fit_gmm_paras_file)
+
+        # Find the cutoff point by GMM
+        gmm_cutoff_paras_files = os.path.join(current_dir, directory, 
+                                          os.path.basename(species) + 
+                                          '.gmm_cutoff.parameters')
+        find_gmm_cutoffs(blocks_avg_sim, gmm_cutoff_paras_files)
+
+        # Find the cutoff point for two arbitrary normal distributions
+        binormal_cutoff_paras_files = os.path.join(current_dir, directory, 
+                                          os.path.basename(species) + 
+                                          '.binormal_cutoff.parameters')
+        binormal_cutoff_plot_files = os.path.join(current_dir, directory, 
+                                          os.path.basename(species) + 
+                                          '.binormal_cutoff.jpeg')
+        find_binormal_cutoffs(blocks_avg_sim, 
+                              binormal_cutoff_paras_files, 
+                              binormal_cutoff_plot_files)
 
     print(f"Mission completed. Please check the results in {directory} folder.")
 

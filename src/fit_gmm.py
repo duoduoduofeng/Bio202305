@@ -16,6 +16,7 @@ def fit_gmm(ori_data, plot_file_name, parameter_file_name):
     gmm.fit(data.reshape(-1, 1))
 
     # Set up the figure and axis
+    plt.clf()
     fig, ax = plt.subplots()
 
     # Generate x values to evaluate the GMM
@@ -36,7 +37,8 @@ def fit_gmm(ori_data, plot_file_name, parameter_file_name):
     # Organize the parameters into a dictionary
     parameters = {
         "weights": gmm.weights_,
-        "means": gmm.means_
+        "means": gmm.means_, 
+        "covariances": gmm.covariances_
     }
     # Save the parameters to a file
     with open(parameter_file_name, 'w') as pf:
