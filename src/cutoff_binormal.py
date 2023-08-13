@@ -54,18 +54,21 @@ def measure_by_mle(data, parameter_file_name, plot_file_name):
             best_fit_after_node = fit_after_node
             best_node = node
 
-    visual_optimal_cutoff(data, best_node, 
-                         best_fit_before_node, 
-                         best_fit_after_node, 
-                         plot_file_name)
+    if plot_file_name:
+        visual_optimal_cutoff(data, best_node, 
+                            best_fit_before_node, 
+                            best_fit_after_node, 
+                            plot_file_name)
 
-    with open(parameter_file_name, 'w') as pf:
-        # pf.write(str(optimal_cutoff))
-        pf.write(f"Best cutoff: {best_node}\n")
-        pf.write(f"Best mle: {best_mle_score}\n")
-        pf.write(f"Best Fit Before Node (Normal): {best_fit_before_node}\n")
-        pf.write(f"Best Fit After Node (Normal): {best_fit_after_node}")
+    if parameter_file_name:
+        with open(parameter_file_name, 'w') as pf:
+            # pf.write(str(optimal_cutoff))
+            pf.write(f"Best cutoff: {best_node}\n")
+            pf.write(f"Best mle: {best_mle_score}\n")
+            pf.write(f"Best Fit Before Node (Normal): {best_fit_before_node}\n")
+            pf.write(f"Best Fit After Node (Normal): {best_fit_after_node}")
 
+    return best_node
 
 def measure_by_mse(data):
     # 初始化最优结果
@@ -110,7 +113,7 @@ def visual_optimal_cutoff(data, best_node,
                           best_fit_before_node, 
                           best_fit_after_node, 
                           plot_file_name):
-    # 可视化最优拟合结果
+    # visualize the optimal simulated result
     data_before_best_node = data[data < best_node].reshape(-1, 1)
     data_after_best_node = data[data >= best_node].reshape(-1, 1)
 
