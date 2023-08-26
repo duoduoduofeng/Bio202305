@@ -67,7 +67,7 @@ def traverse_each_species(file_path, debug_rows_count = 0):
     return genome_pair_sim
 
 
-def extract_triples(genome_pair_sim, triple_output_file):
+def extract_triples(genome_pair_sim, similarity_cutoff, triple_output_file):
     triples = {}
     pairs = genome_pair_sim.keys()
     # print(pairs)
@@ -100,6 +100,7 @@ def extract_triples(genome_pair_sim, triple_output_file):
 
     if triple_output_file:
         with open(triple_output_file, 'w') as pf:
+            pf.write(f"Cutoff point: {similarity_cutoff}\n")
             for triple in triples:
                 sims = triples[triple]
                 pf.write(f"{triple[0]}, {triple[1]}: {sims[0]}\t")
@@ -145,7 +146,7 @@ def main(args):
         triple_output_file = os.path.join(current_dir, directory, 
                                           os.path.basename(species) + 
                                           '.triples')
-        extract_triples(genome_pair_sim, triple_output_file)
+        extract_triples(genome_pair_sim, similarity_cutoff, triple_output_file)
 
 
 if __name__ == "__main__":
