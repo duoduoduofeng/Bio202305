@@ -16,7 +16,7 @@ def find_binormal_cutoffs(block_sim_data,
     return cutoff
     
 
-def traverse_each_species(file_path, debug_rows_count):
+def traverse_each_species(file_path, debug_rows_count = 0):
     genome_pair_sim = {}
     with open(file_path, 'r') as file:
         row_id = 0
@@ -139,7 +139,7 @@ def main(args):
         # Step 1 finished for each species
 
         ### Step 2
-        genome_pair_sim = traverse_each_species(input_file, 10000)
+        genome_pair_sim = traverse_each_species(input_file)
 
         ### Step 3
         triple_output_file = os.path.join(current_dir, directory, 
