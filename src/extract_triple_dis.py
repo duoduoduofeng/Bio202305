@@ -67,6 +67,13 @@ def traverse_each_species(file_path, debug_rows_count = 0):
     return genome_pair_sim
 
 
+def judge_side(cutoff, similarity):
+    if similarity <= cutoff:
+        return "t1"
+    else:
+        return "t2"
+
+
 def extract_triples(genome_pair_sim, similarity_cutoff, triple_output_file):
     triples = {}
     pairs = genome_pair_sim.keys()
@@ -105,7 +112,10 @@ def extract_triples(genome_pair_sim, similarity_cutoff, triple_output_file):
                 sims = triples[triple]
                 pf.write(f"{triple[0]}, {triple[1]}: {sims[0]}\t")
                 pf.write(f"{triple[0]}, {triple[2]}: {sims[1]}\t")
-                pf.write(f"{triple[1]}, {triple[2]}: {sims[2]}\n")
+                pf.write(f"{triple[1]}, {triple[2]}: {sims[2]}\t")
+                pf.write(f"{judge_side(similarity_cutoff, sims[0])}, ")
+                pf.write(f"{judge_side(similarity_cutoff, sims[1])}, ")
+                pf.write(f"{judge_side(similarity_cutoff, sims[2])}\n")
     
     return triples
 
