@@ -8,7 +8,7 @@ def fit_gmm(ori_data, plot_file_name, parameter_file_name):
     species_name = os.path.basename(plot_file_name).split(".")[0]
 
     # Create a GMM object
-    n_components = 3  # Number of components/clusters
+    n_components = 2  # Number of components/clusters
     gmm = GaussianMixture(n_components=n_components)
 
     # Fit the GMM to the data
@@ -43,6 +43,7 @@ def fit_gmm(ori_data, plot_file_name, parameter_file_name):
     # Save the parameters to a file
     with open(parameter_file_name, 'w') as pf:
         pf.write(str(parameters))
+        pf.write("\n")
     # np.save(parameter_file_name, parameters)
 
 if __name__ == "__main__":

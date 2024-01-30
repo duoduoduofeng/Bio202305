@@ -11,7 +11,7 @@ def find_gmm_cutoff(ori_data, parameter_file_name):
     gmm.fit(data)
 
     # Calculate the posterior probabilities
-    posterior_probs = gmm.predict_proba(data)
+    # posterior_probs = gmm.predict_proba(data)
     #print(posterior_probs)
 
     # Find the optimal cutoff by maximizing the likelihood
@@ -23,9 +23,9 @@ def find_gmm_cutoff(ori_data, parameter_file_name):
     # for cutoff in np.unique(data):
     for cutoff in data:
         # Assign data points to components based on the posterior probabilities
-        #left_component = data[posterior_probs[:, 0] > posterior_probs[:, 1]]
+        # left_component = data[posterior_probs[:, 0] > posterior_probs[:, 1]]
         #print(left_component)
-        #right_component = data[posterior_probs[:, 0] <= posterior_probs[:, 1]]
+        # right_component = data[posterior_probs[:, 0] <= posterior_probs[:, 1]]
         
         left_component = data[data < cutoff].reshape(-1, 1)
         right_component = data[data >= cutoff].reshape(-1, 1)
@@ -40,7 +40,7 @@ def find_gmm_cutoff(ori_data, parameter_file_name):
         right_likelihood = gmm.score_samples(right_component).sum()
 
         # Calculate the total likelihood
-        total_likelihood = left_likelihood + right_likelihood
+        total_likelihood = left_likelihood * right_likelihood
 
         # Update the maximum likelihood and cutoff if necessary
         if total_likelihood > max_likelihood:
@@ -52,6 +52,7 @@ def find_gmm_cutoff(ori_data, parameter_file_name):
     # Save the parameters to a file
     with open(parameter_file_name, 'w') as pf:
         pf.write(str(optimal_cutoff))
+        pf.write("\n")
 
 
 if __name__ == "__main__":

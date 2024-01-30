@@ -97,8 +97,9 @@ def save_similarity(output_file, blocks_avg_sim):
         out.write(f"Genome Sequence\tGenome Sequence 2\t\
                   Block Size\tAverage Percent Identity\n")
         for block in blocks_avg_sim:
-            out.write(f"{block[0]}\t{block[1]}\t\
-                      {block[2]}\t{block[3]: .2f}\n")
+            for i in range(block[2]):
+                out.write(f"{block[0]}\t{block[1]}\t\
+                          {block[2]}\t{block[3]: .2f}\n")
 
 def draw_sim_plot(species, block_sim_data, plot_saving_file):
     data = []
