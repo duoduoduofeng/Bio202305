@@ -1,5 +1,6 @@
 import os
 import sys
+import math
 import calculate_simi
 import cutoff_binormal
 
@@ -44,8 +45,7 @@ def traverse_each_species(file_path, debug_rows_count = 0):
             chain_info = fields[3].split('||')
             chain_info_2 = fields[7].split('||')
             if len(chain_info) != 9 or len(chain_info_2) != 9:
-                print(f"Invalid line {row_id} with fault \
-                      columns for the two genome sequence.")
+                print(f"Invalid line {row_id} with fault columns for the two genome sequence.")
                 continue
 
             genome_segment = int(chain_info[6])
@@ -59,8 +59,7 @@ def traverse_each_species(file_path, debug_rows_count = 0):
 
             new_pair = (genome_segment, genome_segment_2)
             if new_pair in genome_pair_sim:
-                print(f"Invalid line {row_id} which contains the same \
-                      genome segment pairs with previous lines.")
+                print(f"Invalid line {row_id} which contains the same genome segment pairs with previous lines.")
                 continue
             genome_pair_sim[new_pair] = similarity
 
@@ -107,6 +106,7 @@ def extract_triples(genome_pair_sim, similarity_cutoff, triple_output_file):
 
     if triple_output_file:
         with open(triple_output_file, 'w') as pf:
+            similarity_cutoff = round(similarity_cutoff, 2)
             pf.write(f"Cutoff point: {similarity_cutoff}\n")
             for triple in triples:
                 sims = triples[triple]

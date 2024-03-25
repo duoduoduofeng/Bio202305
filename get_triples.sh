@@ -1,5 +1,20 @@
 #!/bin/bash
 
+## Set the input folder or file.
+input_path="../data/paralogs outputs/"
+# input_path="../data/paralogs outputs/Rainbow trout"
+# input_path="../data/paralogs outputs/Northern pike 1"
+if [ ! -z "$1" ]; then
+	input_path="../$1"
+else
+	echo "Your input path or file is empty. We will set it by default."
+	echo "\n***************************************************"
+	echo "If you want to set it, please retry [ sh get_triples.sh your_file_or_folder ]."
+	echo "***************************************************\n"
+fi
+echo "Finally, the input_path is set as: \n $input_path \n"
+
+## Execute the script.
 cd src
-python3 extract_triple_dis.py ../data/paralogs\ outputs/
+python3 extract_triple_dis.py "$input_path"
 cd ..
