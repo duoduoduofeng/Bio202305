@@ -180,5 +180,3 @@ if __name__ == "__main__":
 			if "stats" in cds_pairs[pair][blockkey]:
 				print(f"{blockkey}")
 				print(f"{json.dumps(cds_pairs[pair][blockkey])}")
-
-
