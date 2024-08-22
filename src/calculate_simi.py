@@ -139,7 +139,7 @@ def find_binormal_cutoffs(block_sim_data,
     data = []
     for block in block_sim_data:
         data.append(float(format(block[3], ".2f")))
-    cutoff_binormal.measure_by_mle(data, 
+    return cutoff_binormal.measure_by_mle(data, 
                                    binormal_cutoffs_parameters, 
                                    binormal_cutoffs_plot)
 
