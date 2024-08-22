@@ -1,9 +1,9 @@
 #!/bin/bash
 
 ## Set the input folder or file.
-# input_path="../data/paralogs outputs/"
+input_path="../data/paralogs outputs/"
 # input_path="../data/paralogs outputs/Rainbow trout"
-input_path="../data/paralogs outputs/Northern pike 1"
+# input_path="../data/paralogs outputs/Northern pike 1"
 if [ ! -z "$1" ]; then
 	input_path="../$1"
 else

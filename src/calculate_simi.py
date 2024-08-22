@@ -172,6 +172,40 @@ def parse_species_list(args):
                         
     return species_list
 
+
+def judge_side(similarity, cutoff):
+    if similarity <= cutoff:
+        return "t1"
+    else:
+        return "t2"
+
+
+def stat_pair_t1(simi_file, cutoff, t1_stat_file):
+    row_id = 0
+    t1_count = {}
+
+    with open(simi_file, 'r') as fin, \
+        open(t1_stat_file, 'w') as fout:
+        for line in fin:
+            row_id += 1
+            if not line or row_id <= 1:
+                continue
+
+            fields = line.strip().split("\t")
+            if len(fields) != 4:
+                print(f"Invalid line in similarity file, line {row_id}, not 4 fields.")
+                continue
+            
+            similarity = float(fields[3])
+            theside = judge_side(similarity, cutoff)
+            if theside not in t1_count:
+                t1_count[theside] = 0
+            t1_count[theside] += 1
+        
+        sorted_t1_count = {"t1": t1_count["t1"], "t2": t1_count["t2"]}
+        fout.write(f"Pair Statistics: {sorted_t1_count}\n")
+
+
 def main(args):
     species_list = parse_species_list(args)
     if species_list is None or len(species_list) <= 0:
@@ -234,9 +268,15 @@ def main(args):
         binormal_cutoff_plot_files = os.path.join(current_dir, directory, 
                                           os.path.basename(species) + 
                                           '.binormal_cutoff.jpeg')
-        find_binormal_cutoffs(blocks_avg_sim, 
+        best_cutoff = find_binormal_cutoffs(blocks_avg_sim, 
                               binormal_cutoff_paras_files, 
                               binormal_cutoff_plot_files)
+        
+        # Stat the pair t1 & t2
+        t1_stat_file = os.path.join(current_dir, directory, 
+                                    os.path.basename(species) + 
+                                    '.similarity.t1')
+        stat_pair_t1(output_file, best_cutoff, t1_stat_file)
 
     print(f"Mission completed. Please check the results in {directory} folder.")
 
