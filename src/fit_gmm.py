@@ -5,7 +5,7 @@ from sklearn.mixture import GaussianMixture
 import os
 
 def fit_gmm(ori_data, plot_file_name, parameter_file_name):
-    species_name = os.path.basename(plot_file_name).split(".")[0]
+    species_name = os.path.basename(parameter_file_name).split(".")[0]
 
     # Create a GMM object
     n_components = 2  # Number of components/clusters
@@ -15,24 +15,25 @@ def fit_gmm(ori_data, plot_file_name, parameter_file_name):
     data = np.array(ori_data)
     gmm.fit(data.reshape(-1, 1))
 
-    # Set up the figure and axis
-    plt.clf()
-    fig, ax = plt.subplots()
+    if plot_file_name:
+        # Set up the figure and axis
+        plt.clf()
+        fig, ax = plt.subplots()
 
-    # Generate x values to evaluate the GMM
-    x = np.linspace(60, 100, 500)
+        # Generate x values to evaluate the GMM
+        x = np.linspace(60, 100, 500)
 
-    # Plot the GMM curve
-    y = np.exp(gmm.score_samples(x.reshape(-1, 1)))
-    ax.plot(x, y, label='GMM Curve')
+        # Plot the GMM curve
+        y = np.exp(gmm.score_samples(x.reshape(-1, 1)))
+        ax.plot(x, y, label='GMM Curve')
 
-    # Plot the data histogram
-    ax.hist(data, bins=30, density=True, alpha=0.5, label='Data Histogram')
-    ax.set_title(f'Gaussian Mixture Model for {species_name}')
-    ax.set_xlabel('Similarity')
-    ax.set_ylabel('Density')
-    ax.legend()
-    plt.savefig(plot_file_name)
+        # Plot the data histogram
+        ax.hist(data, bins=30, density=True, alpha=0.5, label='Data Histogram')
+        ax.set_title(f'Gaussian Mixture Model for {species_name}')
+        ax.set_xlabel('Similarity')
+        ax.set_ylabel('Density')
+        ax.legend()
+        plt.savefig(plot_file_name)
 
     # Organize the parameters into a dictionary
     parameters = {

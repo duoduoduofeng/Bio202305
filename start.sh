@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# Prelude: Since the gff file is too large, compressed them
+echo "*********************** Prelude: Check the gff files. ***********************\n"
+if [ ! -d "data/gff" ]; then
+	if [ -f "data/gff.tar.gz" ]; then
+		cd data
+		tar -zxvf gff.tar.gz
+		cd ../
+	else
+		echo "No gff.tar.gz found.\n"
+	fi
+else
+	echo "Directory data/gff exists."
+fi
+
 ## Set the input folder or file.
 input_path="../data/paralogs_outputs/"
 # input_path="../data/paralogs outputs/Rainbow trout"
@@ -7,7 +21,7 @@ input_path="../data/paralogs_outputs/"
 if [ ! -z "$1" ]; then
 	input_path="../$1"
 else
-	echo "****************************************************************************"
+	echo "\n****************************************************************************"
 	echo "Your input path or file is empty. We will set it by default."
 	echo "If you want to set it, please retry [ sh start.sh your_file_or_folder ]."
 	echo "****************************************************************************\n"

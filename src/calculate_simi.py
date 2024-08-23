@@ -235,12 +235,12 @@ def main(args):
         save_similarity(output_file, blocks_avg_sim)
 
         # Draw distribution plot
-        plot_file = os.path.join(current_dir, directory, 
-                                 os.path.basename(species) 
-                                 + '.similarity.jpeg')
-        draw_sim_plot(species, blocks_avg_sim, plot_file)
+        # plot_file = os.path.join(current_dir, directory, 
+        #                          os.path.basename(species) 
+        #                          + '.similarity.jpeg')
+        # draw_sim_plot(species, blocks_avg_sim, plot_file)
 
-        # Fit the distribution with 110 distributions in scipy lib.
+        # Outofuse: Fit the distribution with 110 distributions in scipy lib.
         # fit_file = os.path.join(current_dir, directory, 
         #                          os.path.basename(species) + 
         #                          '.fit.jpeg')
@@ -250,9 +250,10 @@ def main(args):
         # fit_similarity(blocks_avg_sim, fit_file, fit_paras_file)
 
         # Fit the distribution by GMM
-        fit_gmm_file = os.path.join(current_dir, directory, 
-                                 os.path.basename(species) + 
-                                 '.fit_gmm.jpeg')
+        # fit_gmm_file = os.path.join(current_dir, directory, 
+        #                          os.path.basename(species) + 
+        #                          '.fit_gmm.jpeg')
+        fit_gmm_file = None
         fit_gmm_paras_file = os.path.join(current_dir, directory, 
                                  os.path.basename(species) + 
                                  '.fit_gmm.parameters')
@@ -268,9 +269,10 @@ def main(args):
         binormal_cutoff_paras_files = os.path.join(current_dir, directory, 
                                           os.path.basename(species) + 
                                           '.binormal_cutoff.parameters')
-        binormal_cutoff_plot_files = os.path.join(current_dir, directory, 
-                                          os.path.basename(species) + 
-                                          '.binormal_cutoff.jpeg')
+        # binormal_cutoff_plot_files = os.path.join(current_dir, directory, 
+        #                                   os.path.basename(species) + 
+        #                                   '.binormal_cutoff.jpeg')
+        binormal_cutoff_plot_files = None
         best_cutoff = find_binormal_cutoffs(blocks_avg_sim, 
                               binormal_cutoff_paras_files, 
                               binormal_cutoff_plot_files)
