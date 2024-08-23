@@ -152,7 +152,7 @@ def parse_species_list(args):
               "or folder as an argument.")
     else:
         paths = sys.argv[1:]
-        print(f"Your input path: {paths}")
+        print(f"Your input path: {paths}.\n")
         for path in paths:
             if os.path.isfile(path):
                 species_list.append(path)
@@ -212,7 +212,8 @@ def main(args):
         print("No valid input.")
         return
 
-    print(f"The program will deal with the following files: {species_list}")
+    print(f"\n===================  Extract pairs.  ===================")
+    print(f"The program will deal with the following files: {species_list}.\n")
 
     # Check the output directory.
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -222,6 +223,8 @@ def main(args):
 
     # species_list = ['rainbow_trout', 'chum_salmon']
     for species in species_list:
+        print(f"****** Start dealing with {os.path.basename(species)}. ******")
+
         input_file = os.path.join(current_dir, species)
         blocks_avg_sim = parse_dagchainer_output(input_file)
 

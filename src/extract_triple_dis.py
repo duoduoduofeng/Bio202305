@@ -159,7 +159,8 @@ def main(args):
         print("No valid input.")
         return
 
-    print(f"The program will deal with the following files: {species_list}")
+    print(f"\n===================  Extract triplets.  ===================")
+    print(f"The program will deal with the following files: {species_list}.\n")
 
     # Check the output directory.
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -169,7 +170,7 @@ def main(args):
 
     # species_list = ['rainbow_trout', 'chum_salmon']
     for species in species_list:
-        print(f"=================== Start dealing with {species} ====================")
+        print(f"****** Start dealing with {os.path.basename(species)} ******")
         input_file = os.path.join(current_dir, species)
         blocks_avg_sim = calculate_simi.parse_dagchainer_output(input_file)
 
@@ -182,10 +183,10 @@ def main(args):
         ### Step 3
         triple_output_file = os.path.join(current_dir, directory, 
                                           os.path.basename(species) + 
-                                          '.triples')
+                                          '.triplets')
         triple_t1_output_file = os.path.join(current_dir, directory, 
                                           os.path.basename(species) + 
-                                          '.triples.t1')
+                                          '.triplets.t1')
         extract_triples(genome_pair_sim, similarity_cutoff, 
                         triple_output_file, triple_t1_output_file)
 
