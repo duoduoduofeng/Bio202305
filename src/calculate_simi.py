@@ -20,6 +20,10 @@ def parse_dagchainer_output(file_path, debug_rows_count = 0):
         current_genome_seq_2 = genome_default_2
         block_sim_sum = 0
         block_count = 0
+        
+        # to record single similarity
+        block_id = 0
+        each_simi_dict = {}
 
         for line in file:
             row_id += 1
@@ -31,6 +35,10 @@ def parse_dagchainer_output(file_path, debug_rows_count = 0):
             
             if not line:
                 continue
+
+            # new block single
+            if line.startswith("#Ks"):
+                block_id += 1
 
             # If starts with "#", new block starts.
             # Thus calculate the average of last block.
@@ -89,8 +97,14 @@ def parse_dagchainer_output(file_path, debug_rows_count = 0):
             percent_id1 = float(chain_info[-1])
             block_sim_sum += percent_id1
             block_count += 1
+
+            # single
+            if block_id not in each_simi_dict:
+                each_simi_dict[block_id] = []
+            each_simi_dict[block_id].append(percent_id1)
     
-    return blocks_avg_sim
+    return blocks_avg_sim, each_simi_dict
+
 
 def save_similarity(output_file, blocks_avg_sim):
     with open(output_file, 'w') as out:
@@ -206,6 +220,27 @@ def stat_pair_t1(simi_file, cutoff, t1_stat_file):
         fout.write(f"Pair Statistics: {sorted_t1_count}\n")
 
 
+def stat_pair_between_t1(each_simi_dict, cutoff, another_t1_file):
+    t1_count = {}
+    # original_count = 0
+    # between_count = 0
+    with open(another_t1_file, 'w') as fout:
+        for block_id in each_simi_dict:
+            simis = each_simi_dict[block_id]
+            # original_count += len(simis)
+            for i in range(1, len(simis) - 1):
+                # between_count += 1
+                avg_simi = (simis[i-1] + simis[i]) / 2.0
+                theside = judge_side(avg_simi, cutoff)
+                if theside not in t1_count:
+                    t1_count[theside] = 0
+                t1_count[theside] += 1
+        
+        # print(f"original_count = {original_count}, between_count = {between_count}")
+        
+        sorted_t1_count = {"t1": t1_count["t1"], "t2": t1_count["t2"]}
+        fout.write(f"Another Pair Statistics: {sorted_t1_count}\n")
+
 def main(args):
     species_list = parse_species_list(args)
     if species_list is None or len(species_list) <= 0:
@@ -226,7 +261,7 @@ def main(args):
         print(f"****** Start dealing with {os.path.basename(species)}. ******")
 
         input_file = os.path.join(current_dir, species)
-        blocks_avg_sim = parse_dagchainer_output(input_file)
+        blocks_avg_sim, each_simi_dict = parse_dagchainer_output(input_file)
 
         # Print extracted chain information
         output_file = os.path.join(current_dir, directory, 
@@ -282,6 +317,12 @@ def main(args):
                                     os.path.basename(species) + 
                                     '.similarity.t1')
         stat_pair_t1(output_file, best_cutoff, t1_stat_file)
+
+        # Calculate another pair t1
+        another_t1_file = os.path.join(current_dir, directory, 
+                                    os.path.basename(species) + 
+                                    '.between.similarity.t1')
+        stat_pair_between_t1(each_simi_dict, best_cutoff, another_t1_file)
 
     print(f"Mission completed. Please check the results in {directory} folder.")
 

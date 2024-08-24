@@ -1,20 +1,21 @@
 import os
 import sys
 import calculate_simi
-import cutoff_binormal
+# import cutoff_binormal
+import extract_singletons
 from collections import OrderedDict
 
 
-def find_binormal_cutoffs(block_sim_data, 
-                          binormal_cutoffs_parameters, 
-                          binormal_cutoffs_plot):
-    data = []
-    for block in block_sim_data:
-        data.append(float(format(block[3], ".2f")))
-    cutoff = cutoff_binormal.measure_by_mle(data, 
-                                   binormal_cutoffs_parameters, 
-                                   binormal_cutoffs_plot)
-    return cutoff
+# def find_binormal_cutoffs(block_sim_data, 
+#                           binormal_cutoffs_parameters, 
+#                           binormal_cutoffs_plot):
+#     data = []
+#     for block in block_sim_data:
+#         data.append(float(format(block[3], ".2f")))
+#     cutoff = cutoff_binormal.measure_by_mle(data, 
+#                                    binormal_cutoffs_parameters, 
+#                                    binormal_cutoffs_plot)
+#     return cutoff
     
 
 def traverse_each_species(file_path, debug_rows_count = 0):
@@ -172,10 +173,17 @@ def main(args):
     for species in species_list:
         print(f"****** Start dealing with {os.path.basename(species)} ******")
         input_file = os.path.join(current_dir, species)
-        blocks_avg_sim = calculate_simi.parse_dagchainer_output(input_file)
 
-        similarity_cutoff = find_binormal_cutoffs(blocks_avg_sim, None, None)
-        # Step 1 finished for each species
+        # Step 1: Parse cutoff from pair extracting result
+        # blocks_avg_sim = calculate_simi.parse_dagchainer_output(input_file)
+        # similarity_cutoff = find_binormal_cutoffs(blocks_avg_sim, None, None)
+        cutoff_para_file = os.path.join(current_dir, directory, 
+                                        os.path.basename(species) + 
+                                        '.binormal_cutoff.parameters')
+        similarity_cutoff = extract_singletons.parse_cutoff(cutoff_para_file)
+        if similarity_cutoff == -1:
+            print(f"No valid cutoff input from file {cutoff_para_file}, skip.")
+            return
 
         ### Step 2
         genome_pair_sim = traverse_each_species(input_file)
