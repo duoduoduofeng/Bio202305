@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Deal with the duplicates in original dag files.
+# It's not necessary to run every time.
+# python3 remove_dup.py "../data/paralogs_outputs.ori/"
+
 # Prelude: Since the gff file is too large, compressed them
 echo "*********************** Prelude: Check the gff files. ***********************\n"
 if [ ! -d "data/gff" ]; then
@@ -32,11 +36,11 @@ fi
 cd src
 echo "\n============================= PROCESSING ============================="
 echo "\n************** pair ***************"
-python3 calculate_simi.py "$input_path"
+# python3 calculate_simi.py "$input_path"
 echo "\n************** singleton ***************"
 python3 extract_singletons.py "$input_path"
 echo "\n************** triplet ***************"
-python3 extract_triple_dis.py "$input_path"
+# python3 extract_triple_dis.py "$input_path"
 cd ..
 
 # print results

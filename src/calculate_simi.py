@@ -241,6 +241,10 @@ def stat_pair_between_t1(each_simi_dict, cutoff, another_t1_file):
         sorted_t1_count = {"t1": t1_count["t1"], "t2": t1_count["t2"]}
         fout.write(f"Another Pair Statistics: {sorted_t1_count}\n")
 
+
+def remove_duplicate(original_file, filtered_file):
+    return
+
 def main(args):
     species_list = parse_species_list(args)
     if species_list is None or len(species_list) <= 0:

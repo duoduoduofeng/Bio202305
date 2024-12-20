@@ -140,7 +140,7 @@ def parse_gff(file_path, out_file_path):
             fout.write(f"{genome_name}\t{seq_type}\t{start}\t{end}\t{reverse}\t{fid}\n")
 
 
-def extract(dag_file, gff_file, inpair_gff_out, notinpair_gff_out):
+def extract(dag_file, gff_file, inpair_gff_out, notinpair_gff_out, extract_first = True):
     with open(dag_file, 'r') as df, \
             open(gff_file, 'r') as gf, \
             open(inpair_gff_out, 'w') as inout, \
@@ -161,31 +161,32 @@ def extract(dag_file, gff_file, inpair_gff_out, notinpair_gff_out):
                 # print(f"DAG, Skip line {row_id} which doesn't contain 14 fields.")
                 continue
 
-            # sequence 1
-            genome_seq = fields[0]
-            if genome_seq not in dag_dict:
-                dag_dict[genome_seq] = {}
-            fid = fields[5]
-            if fid in dag_dict[genome_seq]:
-                # print(f"DAG, Skip line {row_id} which duplicated fid {fid}.")
-                continue
-            start = int(fields[1])
-            end = int(fields[2])
-            pid = float(fields[6])
-            dag_dict[genome_seq][fid] = [start, end, pid]
-
-            # sequence 2
-            genome_seq = fields[7]
-            if genome_seq not in dag_dict:
-                dag_dict[genome_seq] = {}
-            fid = fields[12]
-            if fid in dag_dict[genome_seq]:
-                # print(f"DAG, Skip line {row_id} which duplicated fid {fid} on the second genome sequence.")
-                continue
-            start = int(fields[8])
-            end = int(fields[9])
-            pid = float(fields[13])
-            dag_dict[genome_seq][fid] = [start, end, pid]
+            if extract_first:
+                # sequence 1
+                genome_seq = fields[0]
+                if genome_seq not in dag_dict:
+                    dag_dict[genome_seq] = {}
+                fid = fields[5]
+                if fid in dag_dict[genome_seq]:
+                    # print(f"DAG, Skip line {row_id} which duplicated fid {fid}.")
+                    continue
+                start = int(fields[1])
+                end = int(fields[2])
+                pid = float(fields[6])
+                dag_dict[genome_seq][fid] = [start, end, pid]
+            else:
+                # sequence 2
+                genome_seq = fields[7]
+                if genome_seq not in dag_dict:
+                    dag_dict[genome_seq] = {}
+                fid = fields[12]
+                if fid in dag_dict[genome_seq]:
+                    # print(f"DAG, Skip line {row_id} which duplicated fid {fid} on the second genome sequence.")
+                    continue
+                start = int(fields[8])
+                end = int(fields[9])
+                pid = float(fields[13])
+                dag_dict[genome_seq][fid] = [start, end, pid]
 
         # for seq in dag_dict:
         #     print(f"{seq}\n{dag_dict[seq]}\n")
@@ -220,7 +221,7 @@ def extract(dag_file, gff_file, inpair_gff_out, notinpair_gff_out):
                 nout.write(f"{line}\n")
 
 
-def stat_singleton(dag_file, gff_file, notinpair_gff_out):
+def stat_singleton(dag_file, gff_file, notinpair_gff_out, extract_first = True):
     with open(dag_file, 'r') as df, \
             open(gff_file, 'r') as gf, \
             open(notinpair_gff_out, 'w') as nout:
@@ -244,31 +245,32 @@ def stat_singleton(dag_file, gff_file, notinpair_gff_out):
                 # print(f"Skip line {row_id} which doesn't contain 14 fields.")
                 continue
 
-            # sequence 1
-            genome_seq = fields[0]
-            if genome_seq not in dag_dict:
-                dag_dict[genome_seq] = {}
-            fid = fields[5]
-            if fid in dag_dict[genome_seq]:
-                # print(f"Skip line {row_id} which duplicated fid {fid}.")
-                continue
-            start = int(fields[1])
-            end = int(fields[2])
-            pid = float(fields[6])
-            dag_dict[genome_seq][fid] = [start, end, pid, blockid]
-
-            # sequence 2
-            # genome_seq = fields[7]
-            # if genome_seq not in dag_dict:
-            #     dag_dict[genome_seq] = {}
-            # fid = fields[13]
-            # if fid in dag_dict[genome_seq]:
-            #     print(f"Skip line {row_id} which duplicated fid {fid} on the second genome sequence.")
-            #     continue
-            # start = int(fields[8])
-            # end = int(fields[9])
-            # pid = float(fields[13])
-            # dag_dict[genome_seq][fid] = [start, end, pid]
+            if extract_first:
+                # sequence 1
+                genome_seq = fields[0]
+                if genome_seq not in dag_dict:
+                    dag_dict[genome_seq] = {}
+                fid = fields[5]
+                if fid in dag_dict[genome_seq]:
+                    # print(f"Skip line {row_id} which duplicated fid {fid}.")
+                    continue
+                start = int(fields[1])
+                end = int(fields[2])
+                pid = float(fields[6])
+                dag_dict[genome_seq][fid] = [start, end, pid, blockid]
+            else:
+                # sequence 2
+                genome_seq = fields[7]
+                if genome_seq not in dag_dict:
+                    dag_dict[genome_seq] = {}
+                fid = fields[13]
+                if fid in dag_dict[genome_seq]:
+                    # print(f"Skip line {row_id} which duplicated fid {fid} on the second genome sequence.")
+                    continue
+                start = int(fields[8])
+                end = int(fields[9])
+                pid = float(fields[13])
+                dag_dict[genome_seq][fid] = [start, end, pid]
 
         # Start extracting
         last_paired_fid_dict = {}
@@ -399,7 +401,7 @@ def parse_cutoff(cutoff_para_file):
 
 
 
-def executes(files):
+def executes(files, extract_first = True):
     # parse dag file
     dag_input_file = files[0]
     dag_output_file = files[1]
@@ -413,18 +415,17 @@ def executes(files):
     # extract
     inpair_gff_out = f"{gff_output_file}.in"
     notinpair_gff_out = f"{gff_output_file}.not"
-    extract(dag_output_file, gff_output_file, inpair_gff_out, notinpair_gff_out)
+    extract(dag_output_file, gff_output_file, inpair_gff_out, notinpair_gff_out, extract_first)
 
     # for statistic
     notinpair_gff_out = f"{gff_output_file}.forstat"
-    stat_singleton(dag_output_file, gff_output_file, notinpair_gff_out)
+    stat_singleton(dag_output_file, gff_output_file, notinpair_gff_out, extract_first)
 
     cutoff_para_file = files[4]
     cutoff = parse_cutoff(cutoff_para_file)
     if cutoff == -1:
         print(f"No valid cutoff input from file {cutoff_para_file}, skip.")
         return
-    # cutoff = 86.6
     singleton_stat_file = files[5]
     singletons_between_file = files[6]
     calculate_t(notinpair_gff_out, singleton_stat_file, singletons_between_file, cutoff)
@@ -459,12 +460,14 @@ def main(args):
         dag_output_file = os.path.join(current_dir, directory, 
                                        os.path.basename(species) + 
                                        '.dag')
-        gff_output_file = os.path.join(current_dir, directory, 
-                                       os.path.basename(species) + 
-                                       '.gff')
         binormal_cutoff_paras_files = os.path.join(current_dir, directory, 
                                                    os.path.basename(species) + 
                                                    '.binormal_cutoff.parameters')
+        
+        # first half
+        gff_output_file = os.path.join(current_dir, directory, 
+                                       os.path.basename(species) + 
+                                       '.gff')
         singleton_stat_file = os.path.join(current_dir, directory, 
                                             os.path.basename(species) + 
                                             '.singleton.t1')
@@ -474,7 +477,22 @@ def main(args):
         files = [dag_input_file, dag_output_file, gff_input_file, 
                  gff_output_file, binormal_cutoff_paras_files, 
                  singleton_stat_file, singletons_between_file]
-        executes(files)
+        executes(files, extract_first=True)
+
+        # second half
+        gff_output_file = os.path.join(current_dir, directory, 
+                                       os.path.basename(species) + 
+                                       '.2.gff')
+        singleton_stat_file = os.path.join(current_dir, directory, 
+                                            os.path.basename(species) + 
+                                            '.2.singleton.t1')
+        singletons_between_file = os.path.join(current_dir, directory, 
+                                            os.path.basename(species) + 
+                                            '.2.singleton_between')
+        files = [dag_input_file, dag_output_file, gff_input_file, 
+                 gff_output_file, binormal_cutoff_paras_files, 
+                 singleton_stat_file, singletons_between_file]
+        executes(files, extract_first=False)
 
 
 if __name__ == "__main__":
