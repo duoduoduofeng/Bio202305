@@ -98,7 +98,7 @@ def parse_and_extract(file_path, out_file_path):
             fout.write(f"{current_genome_seq}\t{start_1}\t{end_1}\t{type_1}\t{kind_1}\t{fid_1}\t{pid_1}\t{current_genome_seq_2}\t{start_2}\t{end_2}\t{type_2}\t{kind_2}\t{fid_2}\t{pid_2}\n")
 
 
-def parse_gff(file_path, out_file_path):
+def parse_gff(file_path, out_file_path, seqtypes = ["gene", "CDS"]):
     with open(file_path, 'r') as file, \
         open(out_file_path, 'w') as fout:
         row_id = 0
@@ -123,7 +123,9 @@ def parse_gff(file_path, out_file_path):
             seq_type = fields[2]
 
             # chromosome has no meaning here.
-            if seq_type in ["chromosome", "contig"]:
+            # if seq_type in ["chromosome", "contig"]:
+            #     continue
+            if seq_type not in seqtypes:
                 continue
 
             start = fields[3]
@@ -401,7 +403,7 @@ def parse_cutoff(cutoff_para_file):
 
 
 
-def executes(files, extract_first = True):
+def executes(files, extract_first = True, seqtypes = ["gene", "CDS"]):
     # parse dag file
     dag_input_file = files[0]
     dag_output_file = files[1]
@@ -410,7 +412,7 @@ def executes(files, extract_first = True):
     # parse gff file
     gff_input_file = files[2]
     gff_output_file = files[3]
-    parse_gff(gff_input_file, gff_output_file)
+    parse_gff(gff_input_file, gff_output_file, seqtypes)
 
     # extract
     inpair_gff_out = f"{gff_output_file}.in"
@@ -429,6 +431,40 @@ def executes(files, extract_first = True):
     singleton_stat_file = files[5]
     singletons_between_file = files[6]
     calculate_t(notinpair_gff_out, singleton_stat_file, singletons_between_file, cutoff)
+
+
+def execute_by_seqtype(dag_input_file, dag_output_file, gff_input_file, 
+                   binormal_cutoff_paras_files, current_dir, 
+                   directory, species, seqtype = "gene"):
+    # first half
+    gff_output_file = os.path.join(current_dir, directory, 
+                                   os.path.basename(species) + '.' + seqtype +
+                                   '.gff')
+    singleton_stat_file = os.path.join(current_dir, directory, 
+                                       os.path.basename(species) + '.' + seqtype +
+                                       '.singleton.t1')
+    singletons_between_file = os.path.join(current_dir, directory, 
+                                           os.path.basename(species) + '.' + seqtype +
+                                           '.singleton_between')
+    files = [dag_input_file, dag_output_file, gff_input_file, 
+             gff_output_file, binormal_cutoff_paras_files, 
+             singleton_stat_file, singletons_between_file]
+    executes(files, extract_first=True, seqtypes = [seqtype])
+
+    # second half
+    gff_output_file = os.path.join(current_dir, directory, 
+                                   os.path.basename(species) + '.' + seqtype +
+                                   '.2.gff')
+    singleton_stat_file = os.path.join(current_dir, directory, 
+                                       os.path.basename(species) + '.' + seqtype +
+                                       '.2.singleton.t1')
+    singletons_between_file = os.path.join(current_dir, directory, 
+                                           os.path.basename(species) + '.' + seqtype +
+                                           '.2.singleton_between')
+    files = [dag_input_file, dag_output_file, gff_input_file, 
+             gff_output_file, binormal_cutoff_paras_files, 
+             singleton_stat_file, singletons_between_file]
+    executes(files, extract_first=False, seqtypes = [seqtype])
 
 
 def main(args):
@@ -464,35 +500,16 @@ def main(args):
                                                    os.path.basename(species) + 
                                                    '.binormal_cutoff.parameters')
         
-        # first half
-        gff_output_file = os.path.join(current_dir, directory, 
-                                       os.path.basename(species) + 
-                                       '.gff')
-        singleton_stat_file = os.path.join(current_dir, directory, 
-                                            os.path.basename(species) + 
-                                            '.singleton.t1')
-        singletons_between_file = os.path.join(current_dir, directory, 
-                                            os.path.basename(species) + 
-                                            '.singleton_between')
-        files = [dag_input_file, dag_output_file, gff_input_file, 
-                 gff_output_file, binormal_cutoff_paras_files, 
-                 singleton_stat_file, singletons_between_file]
-        executes(files, extract_first=True)
-
-        # second half
-        gff_output_file = os.path.join(current_dir, directory, 
-                                       os.path.basename(species) + 
-                                       '.2.gff')
-        singleton_stat_file = os.path.join(current_dir, directory, 
-                                            os.path.basename(species) + 
-                                            '.2.singleton.t1')
-        singletons_between_file = os.path.join(current_dir, directory, 
-                                            os.path.basename(species) + 
-                                            '.2.singleton_between')
-        files = [dag_input_file, dag_output_file, gff_input_file, 
-                 gff_output_file, binormal_cutoff_paras_files, 
-                 singleton_stat_file, singletons_between_file]
-        executes(files, extract_first=False)
+        # gene
+        print(f"****** SEQ_TYPE = gene. ******")
+        execute_by_seqtype(dag_input_file, dag_output_file, gff_input_file, 
+                       binormal_cutoff_paras_files, current_dir, 
+                       directory, species, seqtype = "gene")
+        # CDS
+        print(f"****** SEQ_TYPE = CDS. ******")
+        execute_by_seqtype(dag_input_file, dag_output_file, gff_input_file, 
+                       binormal_cutoff_paras_files, current_dir, 
+                       directory, species, seqtype = "CDS")
 
 
 if __name__ == "__main__":

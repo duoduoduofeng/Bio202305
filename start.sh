@@ -32,21 +32,30 @@ else
 fi
 # echo "Finally, the input_path is set as: \n $input_path \n"
 
-## Execute the script.
+# ## Execute the script.
 cd src
 echo "\n============================= PROCESSING ============================="
 echo "\n************** pair ***************"
-# python3 calculate_simi.py "$input_path"
+python3 calculate_simi.py "$input_path"
 echo "\n************** singleton ***************"
 python3 extract_singletons.py "$input_path"
 echo "\n************** triplet ***************"
-# python3 extract_triple_dis.py "$input_path"
+python3 extract_triple_dis.py "$input_path"
 cd ..
 
-# print results
+# # print results
 echo "\n============================= RESULTS ============================="
 echo "\n************** singleton ***************"
-tail output/*.singleton.t1
+echo "\n=*=*======= First half =======*=*="
+echo "\n========= SEQ_TYPE = gene ========="
+tail output/*.gene.singleton.t1
+echo "\n========= SEQ_TYPE = CDS ========="
+tail output/*.CDS.singleton.t1
+echo "\n=*=*======= Second half =======*=*="
+echo "\n========= SEQ_TYPE = gene ========="
+tail output/*.gene.*.singleton.t1
+echo "\n========= SEQ_TYPE = CDS ========="
+tail output/*.CDS.*.singleton.t1
 echo "\n************** pairs ***************"
 tail output/*.similarity.t1
 echo "\n************** triplets ***************"
